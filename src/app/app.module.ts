@@ -3,7 +3,7 @@ import { NgModule } from '@angular/core';
 
 import { AppComponent } from './app.component';
 
-import { LoadGoogleMapsModule } from 'dist/ng-load-google-maps';
+import { NgGoogleMapsLoaderModule } from 'dist/ng-google-maps-loader';
 
 @NgModule({
   declarations: [
@@ -11,9 +11,10 @@ import { LoadGoogleMapsModule } from 'dist/ng-load-google-maps';
   ],
   imports: [
     BrowserModule,
-    LoadGoogleMapsModule.forRoot({
-      apiKey: 'AIzaSyCcR0j7GiCnjh7FzIZ7QVeWFzU4pjBKZI4',
+    NgGoogleMapsLoaderModule.forRoot({
+      key: 'AIzaSyCcR0j7GiCnjh7FzIZ7QVeWFzU4pjBKZI4',
       language: 'pt',
+      libraries: ['places', 'geometry'],
     })
   ],
   providers: [],

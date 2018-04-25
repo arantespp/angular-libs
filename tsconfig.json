@@ -17,8 +17,8 @@
       "dom"
     ],
     "paths": {
-      "load-google-maps": [
-        "dist/load-google-maps"
+      "ng-google-maps-loader": [
+        "dist/ng-google-maps-loader"
       ]
     }
   }

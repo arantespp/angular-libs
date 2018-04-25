@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 
-import { LoadGoogleMapsService } from 'dist/ng-load-google-maps';
+import { NgGoogleMapsLoaderService } from 'dist/ng-google-maps-loader';
 
 @Component({
   selector: 'app-root',
@@ -9,7 +9,7 @@ import { LoadGoogleMapsService } from 'dist/ng-load-google-maps';
 })
 export class AppComponent {
   title = 'app';
-  constructor(loadGoogleMapsService: LoadGoogleMapsService) {
-    loadGoogleMapsService.load();
+  constructor(ngGoogleMapsLoaderService: NgGoogleMapsLoaderService) {
+    ngGoogleMapsLoaderService.load();
   }
 }

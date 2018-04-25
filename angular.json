@@ -29,7 +29,7 @@
               }
             ],
             "styles": [
-              "src/styles.css"
+              "src/styles.scss"
             ],
             "scripts": []
           },
@@ -79,7 +79,7 @@
             "karmaConfig": "src/karma.conf.js",
             "styles": [
               {
-                "input": "styles.css"
+                "input": "styles.scss"
               }
             ],
             "scripts": [],
@@ -133,36 +133,36 @@
         }
       }
     },
-    "ng-load-google-maps": {
-      "root": "projects/ng-load-google-maps",
+    "ng-google-maps-loader": {
+      "root": "projects/ng-google-maps-loader",
       "projectType": "library",
       "prefix": "lib",
       "architect": {
         "build": {
           "builder": "@angular-devkit/build-ng-packagr:build",
           "options": {
-            "project": "projects/ng-load-google-maps/ng-package.json"
+            "project": "projects/ng-google-maps-loader/ng-package.json"
           },
           "configurations": {
             "production": {
-              "project": "projects/ng-load-google-maps/ng-package.prod.json"
+              "project": "projects/ng-google-maps-loader/ng-package.prod.json"
             }
           }
         },
         "test": {
           "builder": "@angular-devkit/build-angular:karma",
           "options": {
-            "main": "projects/ng-load-google-maps/src/test.ts",
-            "tsConfig": "projects/ng-load-google-maps/tsconfig.spec.json",
-            "karmaConfig": "projects/ng-load-google-maps/karma.conf.js"
+            "main": "projects/ng-google-maps-loader/src/test.ts",
+            "tsConfig": "projects/ng-google-maps-loader/tsconfig.spec.json",
+            "karmaConfig": "projects/ng-google-maps-loader/karma.conf.js"
           }
         },
         "lint": {
           "builder": "@angular-devkit/build-angular:tslint",
           "options": {
             "tsConfig": [
-              "projects/ng-load-google-maps/tsconfig.lint.json",
-              "projects/ng-load-google-maps/tsconfig.spec.json"
+              "projects/ng-google-maps-loader/tsconfig.lint.json",
+              "projects/ng-google-maps-loader/tsconfig.spec.json"
             ],
             "exclude": [
               "**/node_modules/**"

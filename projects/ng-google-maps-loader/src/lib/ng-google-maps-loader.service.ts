@@ -3,22 +3,22 @@ import { DOCUMENT } from '@angular/common';
 
 import { BehaviorSubject, Observable } from 'rxjs';
 
-import { LoadGoogleMapsConfig } from './load-google-maps.config';
+import { NgGoogleMapsLoaderConfig } from './ng-google-maps-loader.config';
 
 export enum LoadStatusEnum { NotLoaded, Loading, Loaded }
 
 @Injectable({
   providedIn: 'root'
 })
-export class LoadGoogleMapsService {
+export class NgGoogleMapsLoaderService {
 
   private _loadStatusSubject = new BehaviorSubject<LoadStatusEnum>(LoadStatusEnum.NotLoaded);
   private _loadScript: any;
-  private _loadScriptId = 'load-google-maps-script-id';
+  private _loadScriptId = 'ng-google-maps-loader-script-id';
   private _renderer2: Renderer2;
 
   constructor(@Inject(DOCUMENT) private document: any,
-              @Inject(LoadGoogleMapsConfig) private loadGoogleMapsConfig: LoadGoogleMapsConfig,
+              @Inject(NgGoogleMapsLoaderConfig) private ngGoogleMapsLoaderConfig: NgGoogleMapsLoaderConfig,
               rendererFactory: RendererFactory2) {
     this._renderer2 = rendererFactory.createRenderer(null, null);
   }
@@ -48,9 +48,9 @@ export class LoadGoogleMapsService {
   private createGoogleMapsApiUrl(): string {
     return [
       'https://maps.googleapis.com/maps/api/js',
-      `?key=${this.loadGoogleMapsConfig.apiKey}`,
-      '&libraries=places',
-      `&language=${this.loadGoogleMapsConfig.language || 'en'}`,
+      `?key=${this.ngGoogleMapsLoaderConfig.key}`,
+      `&libraries=${this.ngGoogleMapsLoaderConfig.libraries.join(',')}`,
+      `&language=${this.ngGoogleMapsLoaderConfig.language || 'en'}`,
     ].join('');
   }
 
