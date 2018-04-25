@@ -12,7 +12,7 @@ import { NgGoogleMapsLoaderModule } from 'dist/ng-google-maps-loader';
   imports: [
     BrowserModule,
     NgGoogleMapsLoaderModule.forRoot({
-      key: 'AIzaSyCcR0j7GiCnjh7FzIZ7QVeWFzU4pjBKZI4',
+      key: '...',
       language: 'pt',
       libraries: ['places', 'geometry'],
     })
