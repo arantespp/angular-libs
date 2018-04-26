@@ -1,6 +1,13 @@
 {
   "name": "ng-google-maps-loader",
-  "version": "0.0.1",
+  "version": "0.0.2",
+  "description": "This code loads Google Maps API asynchronously without touching the DOM directly.",
+  "keywords": ["angular", "google-maps"],
+  "homepage": "https://github.com/arantespp/angular-libs/tree/master/projects/ng-google-maps-loader",
+  "bugs": { 
+    "url" : "https://github.com/owner/project/issues"
+  },
+  "license" : "MIT",
   "peerDependencies": {
     "@angular/common": "^6.0.0-rc.0 || ^6.0.0",
     "@angular/core": "^6.0.0-rc.0 || ^6.0.0"
@@ -11,6 +18,6 @@
   },
   "repository": { 
     "type" : "git",
-    "url" : "https://github.com/arantespp/angular-libs/tree/master/projects/ng-google-maps-loader"
+    "url" : "https://github.com/arantespp/angular-libs"
   }
 }

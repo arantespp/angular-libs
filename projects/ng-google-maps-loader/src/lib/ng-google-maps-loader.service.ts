@@ -5,14 +5,14 @@ import { BehaviorSubject, Observable } from 'rxjs';
 
 import { NgGoogleMapsLoaderConfig } from './ng-google-maps-loader.config';
 
-export enum LoadStatusEnum { NotLoaded, Loading, Loaded }
+export enum LoadStatus { NotLoaded, Loading, Loaded }
 
 @Injectable({
   providedIn: 'root'
 })
 export class NgGoogleMapsLoaderService {
 
-  private _loadStatusSubject = new BehaviorSubject<LoadStatusEnum>(LoadStatusEnum.NotLoaded);
+  private _loadStatusSubject = new BehaviorSubject<LoadStatus>(LoadStatus.NotLoaded);
   private _loadScript: any;
   private _loadScriptId = 'ng-google-maps-loader-script-id';
   private _renderer2: Renderer2;
@@ -31,15 +31,15 @@ export class NgGoogleMapsLoaderService {
     return this._loadScriptId;
   }
 
-  get loadStatus(): Observable<LoadStatusEnum> {
-    return this._loadStatusSubject as Observable<LoadStatusEnum>;
+  get loadStatus(): Observable<LoadStatus> {
+    return this._loadStatusSubject as Observable<LoadStatus>;
   }
 
   public load() {
     if (this.document.getElementById(this._loadScriptId)) {
       return;
     }
-    this._loadStatusSubject.next(LoadStatusEnum.Loading);
+    this._loadStatusSubject.next(LoadStatus.Loading);
     const googleMapsApiUrl = this.createGoogleMapsApiUrl();
     this._loadScript = this.createLoadScript(googleMapsApiUrl);
     this._renderer2.appendChild(this.document.body, this._loadScript);
@@ -68,7 +68,7 @@ export class NgGoogleMapsLoaderService {
   }
 
   private scriptOnLoad() {
-    this._loadStatusSubject.next(LoadStatusEnum.Loaded);
+    this._loadStatusSubject.next(LoadStatus.Loaded);
     this._loadStatusSubject.complete();
   }
 }
