@@ -21,6 +21,7 @@ export class NgGoogleMapsLoaderService {
               @Inject(NgGoogleMapsLoaderConfig) private ngGoogleMapsLoaderConfig: NgGoogleMapsLoaderConfig,
               rendererFactory: RendererFactory2) {
     this._renderer2 = rendererFactory.createRenderer(null, null);
+    console.log(this._renderer2);
   }
 
   get loadScipt(): any {
