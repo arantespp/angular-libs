@@ -19,6 +19,9 @@
     "paths": {
       "ng-google-maps-loader": [
         "dist/ng-google-maps-loader"
+      ],
+      "ng-google-maps-placer": [
+        "dist/ng-google-maps-placer"
       ]
     }
   }

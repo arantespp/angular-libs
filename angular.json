@@ -29,6 +29,9 @@
               }
             ],
             "styles": [
+              {
+                "input": "node_modules/@angular/material/prebuilt-themes/indigo-pink.css"
+              },
               "src/styles.scss"
             ],
             "scripts": []
@@ -78,6 +81,9 @@
             "tsConfig": "src/tsconfig.spec.json",
             "karmaConfig": "src/karma.conf.js",
             "styles": [
+              {
+                "input": "node_modules/@angular/material/prebuilt-themes/indigo-pink.css"
+              },
               {
                 "input": "styles.scss"
               }
@@ -163,6 +169,46 @@
             "tsConfig": [
               "projects/ng-google-maps-loader/tsconfig.lint.json",
               "projects/ng-google-maps-loader/tsconfig.spec.json"
+            ],
+            "exclude": [
+              "**/node_modules/**"
+            ]
+          }
+        }
+      }
+    },
+    "ng-google-maps-placer": {
+      "root": "projects/ng-google-maps-placer",
+      "sourceRoot": "projects/ng-google-maps-placer/src",
+      "projectType": "library",
+      "prefix": "lib",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-ng-packagr:build",
+          "options": {
+            "tsConfig": "projects/ng-google-maps-placer/tsconfig.lib.json",
+            "project": "projects/ng-google-maps-placer/ng-package.json"
+          },
+          "configurations": {
+            "production": {
+              "project": "projects/ng-google-maps-placer/ng-package.prod.json"
+            }
+          }
+        },
+        "test": {
+          "builder": "@angular-devkit/build-angular:karma",
+          "options": {
+            "main": "projects/ng-google-maps-placer/src/test.ts",
+            "tsConfig": "projects/ng-google-maps-placer/tsconfig.spec.json",
+            "karmaConfig": "projects/ng-google-maps-placer/karma.conf.js"
+          }
+        },
+        "lint": {
+          "builder": "@angular-devkit/build-angular:tslint",
+          "options": {
+            "tsConfig": [
+              "projects/ng-google-maps-placer/tsconfig.lib.json",
+              "projects/ng-google-maps-placer/tsconfig.spec.json"
             ],
             "exclude": [
               "**/node_modules/**"
