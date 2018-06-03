@@ -1,8 +1,23 @@
 {
   "name": "ng-google-maps-placer",
-  "version": "0.0.1",
+  "version": "0.1.0",
+  "description": "Placer",
+  "keywords": ["angular", "google-maps"],
+  "homepage": "https://github.com/arantespp/angular-libs/tree/master/projects/ng-google-maps-placer",
+  "bugs": { 
+    "url" : "https://github.com/owner/project/issues"
+  },
+  "license" : "MIT",
   "peerDependencies": {
     "@angular/common": "^6.0.0-rc.0 || ^6.0.0",
     "@angular/core": "^6.0.0-rc.0 || ^6.0.0"
+  },
+  "author": {
+    "name": "Pedro Arantes",
+    "email": "arantespp@gmail.com"
+  },
+  "repository": { 
+    "type" : "git",
+    "url" : "https://github.com/arantespp/angular-libs"
   }
 }

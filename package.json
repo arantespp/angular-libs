@@ -8,7 +8,8 @@
     "build": "ng build",
     "test": "ng test",
     "lint": "ng lint",
-    "e2e": "ng e2e"
+    "e2e": "ng e2e",
+    "publish:ng-google-maps-placer": "cp LICENSE dist/ng-google-maps-placer; cp projects/ng-google-maps-placer/README.md dist/ng-google-maps-placer; cd projects/ng-google-maps-placer; npm publish; cd ../.."
   },
   "private": true,
   "dependencies": {

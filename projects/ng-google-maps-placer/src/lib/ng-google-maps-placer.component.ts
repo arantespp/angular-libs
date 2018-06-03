@@ -1,4 +1,5 @@
-import { Component, Inject, OnInit, ViewChild, ElementRef } from '@angular/core';
+import { Component, Inject, OnInit, ViewChild, ElementRef, NgZone } from '@angular/core';
+import { FormBuilder, FormGroup } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material';
 import { NgGoogleMapsPlacerConfig } from './ng-google-maps-placer.config';
 import { AddressComponent, Geometry, Place } from './place';
@@ -7,44 +8,48 @@ import { } from '@types/googlemaps';
 @Component({
   selector: 'lib-ng-google-maps-placer',
   template: `
-  <h2 mat-dialog-title>Placer</h2>
+  <div style="height: 100%" fxLayout="column">
 
-  <mat-dialog-content style="height: 100%" fxLayout="column">
+    <h3 style="margin-bottom: 5px" fxFlex="0 0 auto" mat-dialog-title>Placer</h3>
 
-    <div style="width: 100%" fxFlex="0 0 auto" fxLayout="row" fxLayoutGap="30px">
+    <section
+      [formGroup]="placerForm"
+      style="width: 100%"
+      fxFlex="0 0 auto"
+      fxLayout="row"
+      fxLayoutAlign="space-between center"
+      fxLayoutGap="20px">
 
       <mat-form-field fxFlex="1 1 auto">
         <input
           matInput
           #addressSearchInput
+          formControlName="addressInput"
           type="text"
-          placeholder="Endereço"
-          [(ngModel)]="addressSearchInputValue">
+          placeholder="Endereço">
         <button
           mat-button
-          *ngIf="addressSearchInputValue"
           matSuffix mat-icon-button
-          aria-label="Clear"
-          (click)="addressSearchInputValue=''; numberSearchInputValue=null">
+          (click)="placerForm.patchValue({addressInput: '', numberInput: null})"
+          aria-label="Clear">
           <mat-icon>close</mat-icon>
         </button>
       </mat-form-field>
 
-      <mat-form-field fxFlex="0 0 20%">
+      <mat-form-field fxFlex="0 0 15%">
         <input
           matInput
           #numberSearchInput
+          formControlName="numberInput"
           type="number"
           placeholder="Número"
-          (keyup.enter)="numberSearch()"
-          [(ngModel)]="numberSearchInputValue">
+          (keyup.enter)="triggerFromInput()">
         <button
           mat-button
-          *ngIf="numberSearchInputValue"
           matSuffix
+          (click)="placerForm.patchValue({numberInput: null})"
           mat-icon-button
-          aria-label="Clear"
-          (click)="numberSearchInputValue=null">
+          aria-label="Clear">
           <mat-icon>close</mat-icon>
         </button>
       </mat-form-field>
@@ -52,24 +57,33 @@ import { } from '@types/googlemaps';
       <button
         fxFlex="0 0 auto"
         class="mat-elevation-z1"
-        mat-mini-fab color="primary"
-        (click)="numberSearch()">
+        mat-mini-fab
+        color="primary"
+        (click)="triggerFromInput()">
         <mat-icon>search</mat-icon>
       </button>
 
-    </div>
+    </section>
 
     <span fxFlex="0 0 auto">Status: <b>{{ status }}</b></span>
 
     <div #googleMapsCanvas fxFlex="1 1 auto"></div>
 
-  </mat-dialog-content>
+    <span fxFlex="0 0 auto">Endereço: <b>{{ place.formattedAddress }}</b></span>
 
-  <mat-dialog-actions>
-    <!-- The mat-dialog-close directive optionally accepts a value as a result for the dialog. -->
-    <button #saveButton mat-raised-button (click)="save()" [disabled]="onSearch">Salvar</button>
-    <button mat-raised-button mat-dialog-close>Cancelar</button>
-  </mat-dialog-actions>
+    <div fxFlex="0 0 auto" style="margin-top: 20px" fxLayoutGap="5px">
+      <button
+        #saveButton
+        mat-raised-button
+        [mat-dialog-close]="place"
+        color="primary"
+        [disabled]="onSearch">
+        Salvar
+      </button>
+      <button  mat-raised-button [mat-dialog-close]="initialPlace">Cancelar</button>
+    </div>
+
+  </div>
   `,
   styles: []
 })
@@ -81,23 +95,24 @@ export class NgGoogleMapsPlacerComponent implements OnInit {
   private autocomplete: google.maps.places.Autocomplete;
   private geocoder: google.maps.Geocoder;
 
-  private place: Place;
-
+  placerForm: FormGroup;
   onSearch = false;
   status = 'OK';
-  addressSearchInputValue: string;
-  numberSearchInputValue: number;
+  initialPlace: Place;
 
   @ViewChild('googleMapsCanvas') googleMapsCanvas: ElementRef;
   @ViewChild('addressSearchInput') addressSearchInput: ElementRef;
   @ViewChild('numberSearchInput') numberSearchInput: ElementRef;
   @ViewChild('saveButton', { read: ElementRef }) saveButton: ElementRef;
 
-  constructor(@Inject(NgGoogleMapsPlacerConfig) private ngGoogleMapsPlacerConfig: NgGoogleMapsPlacerConfig,
-              @Inject(MAT_DIALOG_DATA) private inputPlace: Place,
-              private matDialogRef: MatDialogRef<NgGoogleMapsPlacerComponent>) { }
+  constructor(@Inject(MAT_DIALOG_DATA) public place: Place,
+              private matDialogRef: MatDialogRef<NgGoogleMapsPlacerComponent>,
+              private formBuilder: FormBuilder,
+              private ngZone: NgZone) { }
 
   ngOnInit() {
+    this.setInitialPlace(this.place);
+    this.initPlacerForm();
     this.initMap();
     this.initMarker();
     this.initAutocompleteBox();
@@ -105,87 +120,112 @@ export class NgGoogleMapsPlacerComponent implements OnInit {
     this.initGeocoder();
   }
 
-  initMap() {
+  /**
+   * Init functions
+   */
+  private initPlacerForm() {
+    this.placerForm = this.formBuilder.group({
+      addressInput: '',
+      numberInput: null
+    });
+  }
+
+  private initMap() {
     this.map = new google.maps.Map(this.googleMapsCanvas.nativeElement, {
-      center: this.placeLatLngToGoogleMapsLatLng(this.ngGoogleMapsPlacerConfig.defaultPlace),
+      center: this.placeLatLngToGoogleMapsLatLng(this.place),
       zoom: 15,
       gestureHandling: 'greedy',
       // disableDefaultUI: true,
     });
 
-    this.map.addListener('click', (e) => this.setMaker(e.latLng));
+    this.map.addListener('click', (e) => this.ngZone.run(() => this.triggerFromMap(e.latLng)));
   }
 
-  initMarker() {
+  private initMarker() {
     this.marker = new google.maps.Marker({
       map: this.map,
       draggable: true,
       position: this.map.getCenter(),
       visible: true,
-      // icon: {
-      //   url: this.location.icon,
-      //   size: new google.maps.Size(71, 71),
-      //   origin: new google.maps.Point(0, 0),
-      //   anchor: new google.maps.Point(17, 34),
-      //   scaledSize: new google.maps.Size(35, 35)
-      // },
     });
 
-    this.marker.addListener('dragend', (e) => this.setMaker(e.latLng));
+    this.marker.addListener('dragend', (e) => this.ngZone.run(() => this.triggerFromMap(e.latLng)));
+    this.marker.addListener('click', () => this.setInfoWindowFromPlace());
   }
 
-  initInfoWindow() {
+  private initInfoWindow() {
     this.infoWindow = new google.maps.InfoWindow({
       disableAutoPan: true,
     });
-    const content = this.inputPlace ? this.inputPlace.formattedAddress : this.ngGoogleMapsPlacerConfig.defaultPlace.formattedAddress;
+    const content = this.place.formattedAddress;
     if (content) {
       this.infoWindow.open(this.map, this.marker);
       this.infoWindow.setContent(content);
     }
   }
 
-  initAutocompleteBox() {
-    this.addressSearchInput.nativeElement.focus();
-
+  private initAutocompleteBox() {
+    this.focusAddressSearchInput();
     this.autocomplete = new google.maps.places.Autocomplete(this.addressSearchInput.nativeElement);
     this.autocomplete.bindTo('bounds', this.map);
-
-    this.autocomplete.addListener('place_changed', () => {
+    this.autocomplete.addListener('place_changed', () => this.ngZone.run(() => {
       this.onSearch = true;
-      this.numberSearchInputValue = null;
       const place = this.autocomplete.getPlace();
       this.setPlace(place);
-      this.openInfoWindow();
-      this.marker.setPosition(this.placeLatLngToGoogleMapsLatLng(this.place));
-      this.map.setCenter(this.placeLatLngToGoogleMapsLatLng(this.place));
-      // this.numberSearchInput.nativeElement.focus();
+      this.setFormAddressInput(place);
+      this.setMapAfterNewPlace();
+      this.focusNumberSearchInput();
       this.onSearch = false;
-    });
+    }));
   }
 
-  initGeocoder() {
+  private initGeocoder() {
     this.geocoder = new google.maps.Geocoder();
   }
 
-  private setMaker(latLng: google.maps.LatLng) {
-    this.marker.setPosition(latLng);
-    this.infoWindow.close();
-    this.onSearch = true;
+  /**
+   * Trigger functions
+   */
+  public async triggerFromInput() {
+    const { addressInput, numberInput } = this.placerForm.value;
+    const address = `${addressInput} ${numberInput}`;
+    await this.geocode({ address });
+    this.setMapAfterNewPlace();
+    this.focusSaveButton();
+  }
 
-    this.geocoder.geocode({ location: latLng }, (results, status) => {
-      if (status === google.maps.GeocoderStatus.OK) {
-        if (results[0]) {
+  private async triggerFromMap(location: google.maps.LatLng) {
+    this.setMakerFromLatLng(location);
+    await this.geocode({ location });
+    this.setMapAfterNewPlace();
+    this.resetPlacerForm();
+    this.focusSaveButton();
+  }
+
+  /**
+   * Search functions
+   */
+  private geocode(request: google.maps.GeocoderRequest): Promise<void> {
+    return new Promise((resolve, reject) => {
+      this.onSearch = false;
+      this.geocoder.geocode(request, (results, status) => {
+        this.status = google.maps.GeocoderStatus[status];
+        this.onSearch = false;
+        if (status === google.maps.GeocoderStatus.OK) {
           this.setPlace(results[0]);
-          this.openInfoWindow();
-          this.onSearch = false;
+          resolve();
         } else {
-          window.alert('No results found');
+          reject();
         }
-      } else {
-        window.alert('Geocoder failed due to: ' + status);
-      }
+      });
     });
+  }
+
+  /**
+   * Class variables setters
+   */
+  private setInitialPlace(place: Place) {
+    this.initialPlace = place;
   }
 
   private setPlace(place: google.maps.GeocoderResult | google.maps.places.PlaceResult) {
@@ -208,71 +248,65 @@ export class NgGoogleMapsPlacerComponent implements OnInit {
       addressComponents,
       formattedAddress: place.formatted_address,
       geometry,
-      // partialMatch: place.partial_match,
       placeId: place.place_id,
-      // postcodeLocalities: place.postcode_localities,
       types: place.types,
     };
   }
 
-  private openInfoWindow() {
+  private setFormAddressInput(place: google.maps.GeocoderResult | google.maps.places.PlaceResult) {
+    this.placerForm.patchValue({ addressInput: place.formatted_address });
+  }
+
+  /**
+   * Map setters
+   */
+  private setMapAfterNewPlace() {
+    this.setMarkerFromPlace();
+    this.setInfoWindowFromPlace();
+    this.setMapCenterFromPlace();
+  }
+
+  private setInfoWindowFromPlace() {
+    this.infoWindow.close();
     this.infoWindow.setContent(this.place.formattedAddress);
     this.infoWindow.open(this.map, this.marker);
   }
 
+  private setMakerFromLatLng(latLng: google.maps.LatLng) {
+    this.infoWindow.close();
+    this.marker.setPosition(latLng);
+  }
+
+  private setMarkerFromPlace() {
+    this.infoWindow.close();
+    this.marker.setPosition(this.placeLatLngToGoogleMapsLatLng(this.place));
+  }
+
+  private setMapCenterFromPlace() {
+    this.map.setCenter(this.placeLatLngToGoogleMapsLatLng(this.place));
+  }
+
+  /**
+   * Helper functions
+   */
   private placeLatLngToGoogleMapsLatLng(place: Place): google.maps.LatLng {
-    return new google.maps.LatLng(
-      place.geometry.location.lat,
-      place.geometry.location.lng
-    );
+    return new google.maps.LatLng(place.geometry.location.lat, place.geometry.location.lng);
   }
 
-  numberSearch(): Promise<Place> {
-    return new Promise((resolve, reject) => {
-      this.onSearch = true;
-      const place = this.autocomplete.getPlace();
-      const formattedAddress = place ? place.formatted_address : this.addressSearchInputValue;
-
-      if (formattedAddress) {
-        this.geocoder.geocode({
-          address: `${formattedAddress} ${this.numberSearchInputValue}`,
-        }, (results, status) => {
-          if (status === google.maps.GeocoderStatus.OK) {
-            if (results[0]) {
-              this.setPlace(results[0]);
-              this.openInfoWindow();
-              this.onSearch = false;
-              this.saveButton.nativeElement.focus();
-              this.status = this.numberSearchInputValue && !this.hasPlaceStreetNumber(this.place) ?
-                'NÚMERO NÃO REGISTRADO NESTE ENDEREÇO' : 'OK';
-              resolve(this.place);
-            }
-          } else {
-            if (status === google.maps.GeocoderStatus.ZERO_RESULTS) {
-              this.status = 'ENDEREÇO NÃO ENCONTRADO';
-            }
-            reject(status);
-          }
-        });
-      } else {
-        resolve(this.place);
-      }
-
-    }); // promise
+  private resetPlacerForm() {
+    this.placerForm.reset();
   }
 
-  private hasPlaceStreetNumber(place: Place): boolean {
-    let _hasStreetNumber = false;
-    this.place.addressComponents.forEach(addressComponent => {
-      if (!!addressComponent.types.find(type => type === 'street_number')) {
-        _hasStreetNumber = true;
-      }
-    });
-    return _hasStreetNumber;
+  private focusAddressSearchInput() {
+    this.addressSearchInput.nativeElement.focus();
   }
 
-  save() {
-    this.matDialogRef.close(this.place);
+  private focusNumberSearchInput() {
+    this.numberSearchInput.nativeElement.focus();
+  }
+
+  private focusSaveButton() {
+    this.saveButton.nativeElement.focus();
   }
 
 }
