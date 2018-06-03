@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 
 import { NgGoogleMapsLoaderService } from 'dist/ng-google-maps-loader';
-import { NgGoogleMapsPlacerService } from 'dist/ng-google-maps-placer';
+import { NgGoogleMapsPlacerService } from './src/public_api';
 
 @Component({
   selector: 'app-root',
@@ -12,10 +12,12 @@ export class AppComponent {
   title = 'app';
   constructor(ngGoogleMapsLoaderService: NgGoogleMapsLoaderService,
               private ngGoogleMapsPlacerService: NgGoogleMapsPlacerService) {
-    // ngGoogleMapsLoaderService.load();
+    ngGoogleMapsLoaderService.load();
   }
 
   open() {
-    this.ngGoogleMapsPlacerService.openPlacer();
+    this.ngGoogleMapsPlacerService.openPlacer().afterClosed().subscribe((place) => {
+      console.log(place);
+    });
   }
 }

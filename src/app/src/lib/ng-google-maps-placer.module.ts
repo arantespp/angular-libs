@@ -1,6 +1,6 @@
 import { NgModule, ModuleWithProviders } from '@angular/core';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { FormsModule } from '@angular/forms';
+import { ReactiveFormsModule } from '@angular/forms';
 import {
   MatButtonModule,
   MatDialogModule,
@@ -16,7 +16,7 @@ import { NgGoogleMapsPlacerConfig } from './ng-google-maps-placer.config';
 @NgModule({
   imports: [
     BrowserAnimationsModule,
-    FormsModule,
+    ReactiveFormsModule,
     FlexModule,
     MatButtonModule,
     MatDialogModule,

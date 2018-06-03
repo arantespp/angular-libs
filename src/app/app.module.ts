@@ -4,7 +4,7 @@ import { NgModule } from '@angular/core';
 import { AppComponent } from './app.component';
 
 import { NgGoogleMapsLoaderModule } from 'dist/ng-google-maps-loader';
-import { NgGoogleMapsPlacerModule } from 'dist/ng-google-maps-placer';
+import { NgGoogleMapsPlacerModule } from './src/public_api';
 
 import { config } from './app.config';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
@@ -20,7 +20,16 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
       language: 'pt',
       libraries: ['places', 'geometry'],
     }),
-    NgGoogleMapsPlacerModule,
+    NgGoogleMapsPlacerModule.forRoot({
+      defaultPlace: {
+        geometry: {
+          location: {
+            lat: 23,
+            lng: -46,
+          }
+        }
+      }
+    }),
     BrowserAnimationsModule
   ],
   providers: [],
